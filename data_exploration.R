@@ -49,8 +49,28 @@ df_stats <- df_clean %>%
             median = as.duration(round(median(ride_length)))
             ) 
 
+df_quantile <- df_clean %>% 
+  group_by(member_casual) %>% 
+  summarise(q2 = as.duration(quantile(ride_length, 0.25)),
+            q3 = as.duration(quantile(ride_length, 0.5)),
+            q4 = as.duration(quantile(ride_length, 0.75)),
+            iqr = as.duration(IQR(ride_length)),
+            lower = q2-1.5*iqr, 
+            min = as.duration(round(min(ride_length))),
+            upper = q4+1.5*iqr,
+            max = as.duration(round(max(ride_length)))
+            )
+
 # Wow.. 5 weeks?! There's definitely some outliers here.
+df_clean %>% 
+  ggplot(aes(x = member_casual, y = ride_length)) +
+  geom_boxplot()
+
 
 # Basic count by rideable type
 df_clean %>% group_by(rideable_type) %>% tally()
+
+df_clean %>% group_by(ride_id) %>% tally() %>% filter(n>1)
+
+
   

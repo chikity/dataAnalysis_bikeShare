@@ -1,0 +1,110 @@
+---
+title: "Exploring the data"
+author: "Chi Kit Yeung"
+output: html_notebook
+---
+## Guiding questions
+
+- Where is your data located?
+- How is the data organized?
+- Are there issues with bias or credibility in this data? Does your data ROCCC?
+- How are you addressing licensing, privacy, security, and accessibility?
+- How did you verify the data’s integrity?
+- How does it help you answer your question?
+- Are there any problems with the data?
+
+---
+
+## Setting up the environment
+
+Loading all the necessary packages
+
+```{r warning=TRUE, include=FALSE}
+library(tidyverse)
+library(janitor)
+library(lubridate)
+library(hms)
+```
+
+## Loading the Data
+
+The data is stored in csv files that are organized monthly. 
+
+```{r}
+# Loading the data
+path <- "./divvy-tripdata/"
+filenames <- list.files(path = path)
+```
+
+### Into a list
+
+Since our data is being store in multiple csv files, I'll be using a loop to store each data frame into a list.  Doing so avoids cluttering up local environment.
+
+```{r}
+all_df <- lapply(filenames, function(i) {
+  i <- paste(path,i,sep="")
+  read.csv(i, header=FALSE)
+  })
+filenames <- gsub("-","_",filenames)
+names(all_df) <- gsub(".csv","",filenames)
+```
+
+### Joining all the data frames
+
+
+```{r}
+joined_df <- all_df %>% 
+  reduce(full_join)
+
+# Renaming the data frame
+## reduce() function renamed the columns with some place holder values and placed the actual names into the first row of the data frame.
+names(joined_df) <- joined_df[1,]
+df <- joined_df %>% 
+  slice(-1)
+```
+
+
+#### Let's see what it's like
+```{r}
+glimpse(df)
+```
+
+### Cleaning the Data
+
+All the data is imported as 'char' data type.  Converting them to the correct types.
+
+```{r}
+## Converting to correct data types, removing entries with NA
+df_clean <- df %>% 
+  mutate(started_at = ymd_hms(started_at)) %>% 
+  mutate(ended_at = ymd_hms(ended_at)) %>% 
+  mutate(start_lat = as.double(start_lat)) %>% 
+  mutate(start_lat = as.double(start_lng)) %>%
+  mutate(start_lat = as.double(end_lat)) %>%
+  mutate(start_lat = as.double(end_lng)) %>%
+  mutate(ride_length = as_hms(difftime(ended_at, started_at)), .after = ended_at) %>% 
+  remove_empty(which = c("rows", "cols")) %>% 
+  na.omit() %>% 
+  filter(started_at<=ended_at) %>% # remove cases where end time is somehow before the start time
+  as_tibble()
+```
+
+
+#### Calculating some basic stats
+
+```{r}
+## Getting average amount of time different rider types ride
+df_stats <- df_clean %>% 
+  group_by(member_casual) %>% 
+  summarise(mean = as.duration(round(mean(ride_length))), 
+            max = as.duration(round(max(ride_length))), 
+            min = as.duration(round(min(ride_length))),
+            sd = as.duration(round(sd(ride_length))),
+            median = as.duration(round(median(ride_length)))
+            ) %>% 
+  as_tibble()
+```
+
+Wow.. longest ride is 5 weeks?! There's definitely some outliers here.  Probably someone who took out a bike and forgot to return it (o_o")
+
+

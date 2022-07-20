@@ -107,4 +107,10 @@ df_stats <- df_clean %>%
 
 Wow.. longest ride is 5 weeks?! There's definitely some outliers here.  Probably someone who took out a bike and forgot to return it (o_o")
 
+---
+### Noting down some ideas
+
+- Usage trends by month
+- Usage trends by time of day
+- Difference in ride distance
 

@@ -35,6 +35,7 @@ df_clean <- df %>%
   mutate(ride_length = as_hms(difftime(ended_at, started_at)), .after = ended_at) %>% 
   remove_empty(which = c("rows", "cols")) %>% 
   na.omit() %>% 
+  filter(started_at<=ended_at) %>% # remove cases where end time is somehow before the start time
   as_tibble()
 
 # Analysis
@@ -43,15 +44,13 @@ df_stats <- df_clean %>%
   group_by(member_casual) %>% 
   summarise(mean = as.duration(round(mean(ride_length))), 
             max = as.duration(round(max(ride_length))), 
-            min = as.duration(round(min(ride_length)))
+            min = as.duration(round(min(ride_length))),
+            sd = as.duration(round(sd(ride_length))),
+            median = as.duration(round(median(ride_length)))
             ) 
 
 # Wow.. 5 weeks?! There's definitely some outliers here.
-  
-  
 
-
-
-
-
+# Basic count by rideable type
+df_clean %>% group_by(rideable_type) %>% tally()
   

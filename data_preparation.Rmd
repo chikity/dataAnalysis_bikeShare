@@ -3,6 +3,7 @@ title: "Exploring the data"
 author: "Chi Kit Yeung"
 output: html_notebook
 ---
+# Answering the Question: In what ways do members and casual riders use Divvy bikes differently?
 ## Guiding questions
 
 - Where is your data located?
@@ -49,7 +50,7 @@ filenames <- gsub("-","_",filenames)
 names(all_df) <- gsub(".csv","",filenames)
 ```
 
-### Joining all the data frames
+### Wrangling the Data
 
 
 ```{r}
@@ -63,15 +64,15 @@ df <- joined_df %>%
   slice(-1)
 ```
 
-
 #### Let's see what it's like
+
 ```{r}
 glimpse(df)
 ```
 
 ### Cleaning the Data
 
-All the data is imported as 'char' data type.  Converting them to the correct types.
+Looks like all the data is imported as 'character' data type.  Converting them to the correct types.
 
 ```{r}
 ## Converting to correct data types, removing entries with NA
@@ -102,12 +103,31 @@ df_stats <- df_clean %>%
             sd = as.duration(round(sd(ride_length))),
             median = as.duration(round(median(ride_length)))
             ) %>% 
-  as_tibble()
+  df_stats
 ```
 
-Wow.. longest ride is 5 weeks?! There's definitely some outliers here.  Probably someone who took out a bike and forgot to return it (o_o")
+Wow.. longest ride is _5 weeks_?! There's definitely some outliers here.  Probably someone who took out a bike and forgot to return it (o_o")
 
 ---
+
+#### Applying some statistics to help filter out the outliers
+
+```{r}
+df_quantile <- df_clean %>% 
+  group_by(member_casual) %>% 
+  summarise(q2 = as.duration(quantile(ride_length, 0.25)),
+            q3 = as.duration(quantile(ride_length, 0.5)),
+            q4 = as.duration(quantile(ride_length, 0.75)),
+            iqr = as.duration(IQR(ride_length)),
+            lower = q2-1.5*iqr, 
+            min = as.duration(round(min(ride_length))),
+            upper = q4+1.5*iqr,
+            max = as.duration(round(max(ride_length)))
+            )
+df_quantile
+```
+
+
 ### Noting down some ideas
 
 - Usage trends by month

@@ -41,7 +41,7 @@ df_clean <- df %>%
 # Analysis
 ## Getting average amount of time different rider types ride
 df_stats <- df_clean %>% 
-  group_by(member_casual) %>% 
+  # group_by(member_casual) %>% 
   summarise(mean = as.duration(round(mean(ride_length))), 
             max = as.duration(round(max(ride_length))), 
             min = as.duration(round(min(ride_length))),

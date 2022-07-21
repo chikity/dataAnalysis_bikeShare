@@ -194,6 +194,7 @@ df_ride_weekday %>%
        caption = "Data collected between June 2021 to May 2022")
   
 ```
+Casual riders consistently seem to rent the bikes for longer than members.
 
 ```{r}
 df_ride_weekday %>% 
@@ -208,7 +209,7 @@ df_ride_weekday %>%
        caption = "Data collected between June 2021 to May 2022")
 ```
 
-
+Members ride a lot more on weekdays compared to Casual riders who edge out more rides on weekends.
 
 ---
 
@@ -225,6 +226,7 @@ df_filter %>%
   labs(x = NULL, y = "Number of Rides (thousands)", color = "Rider Type")
 ```
 
+Both types of riders seem to follow the same monthly riding trends.  Most riders are not fond of riding during winter months.
 
 ```{r}
 df_filter %>%
@@ -236,5 +238,19 @@ df_filter %>%
   scale_x_date(date_breaks = "1 month", date_labels = "%b") +
   scale_y_continuous(limits = c(0, 30)) +
   labs(title = "Monthly Average Ride Length per Month", x = NULL, y = "Average Ride Length (minutes)", color = "Rider Type")
+```
+
+Again we can observe that casual riders tend to spend more time riding compared to members.
+
+---
+
+# Let's see bike types
+
+```{r}
+df_filter %>% 
+  group_by(member_casual, rideable_type) %>% 
+  summarise(count = n()) %>% 
+  ggplot(aes(x = rideable_type, y = count, fill = member_casual)) +
+  geom_col(position = "dodge")
 ```
 

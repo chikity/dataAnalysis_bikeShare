@@ -1,9 +1,8 @@
 ---
-title: "Exploring the data"
+title: "Answering the Question: In what ways do members and casual riders use Divvy bikes differently?"
 author: "Chi Kit Yeung"
 output: html_notebook
 ---
-# Answering the Question: In what ways do members and casual riders use Divvy bikes differently?
 ## Guiding questions
 
 - Where is your data located?
@@ -68,7 +67,7 @@ df <- joined_df %>%
 #### Let's see what it's like
 
 ```{r}
-glimpse(df)
+str(df)
 ```
 
 ### Cleaning the Data
@@ -108,7 +107,7 @@ df_stats <- df_clean %>%
   kable(df_stats)
 ```
 
-Wow.. longest ride is _5 weeks_?! There's definitely some outliers here.  Probably someone who took out a bike and forgot to return it (o_o")
+Wow.. the longest ride is _5 weeks_?! There's definitely some outliers here.  Probably someone who took out a bike and forgot to return it (o_o")
 
 ---
 

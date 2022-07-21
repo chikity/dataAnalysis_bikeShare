@@ -50,7 +50,7 @@ df_stats <- df_clean %>%
             ) 
 
 df_quantile <- df_clean %>% 
-  group_by(member_casual) %>% 
+  # group_by(member_casual) %>% 
   summarise(q2 = as.duration(quantile(ride_length, 0.25)),
             q3 = as.duration(quantile(ride_length, 0.5)),
             q4 = as.duration(quantile(ride_length, 0.75)),
@@ -62,15 +62,33 @@ df_quantile <- df_clean %>%
             )
 
 # Wow.. 5 weeks?! There's definitely some outliers here.
-df_clean %>% 
-  ggplot(aes(x = member_casual, y = ride_length)) +
-  geom_boxplot()
+
+# Filter Outliers
+df_filter <- df_clean %>%
+  subset(select = c(ride_id, rideable_type, started_at, ended_at, ride_length, member_casual)) %>% 
+  filter(ride_length>df_quantile$upper) %>% 
+  mutate(month = month(started_at, label = TRUE, abbr = TRUE))
 
 
-# Basic count by rideable type
-df_clean %>% group_by(rideable_type) %>% tally()
+# Number of Rides per month
+df_filter %>% 
+  group_by(member_casual, month) %>% 
+  tally() %>% 
+  ggplot() +
+  geom_point(aes(x = month, y = n, color = member_casual)) +
+  theme_minimal() +
+  labs()
 
-df_clean %>% group_by(ride_id) %>% tally() %>% filter(n>1)
+df_filter %>%
+  group_by(member_casual, month) %>% 
+  summarise(average_ride = mean(ride_length)) %>% 
+  ggplot() +
+  geom_point(aes(x = month, y = average_ride, color = member_casual))
+  
+  
+
+
+
 
 
   

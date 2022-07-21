@@ -25,6 +25,7 @@ library(tidyverse)
 library(janitor)
 library(lubridate)
 library(hms)
+library(knitr)
 ```
 
 ## Loading the Data
@@ -102,8 +103,9 @@ df_stats <- df_clean %>%
             min = as.duration(round(min(ride_length))),
             sd = as.duration(round(sd(ride_length))),
             median = as.duration(round(median(ride_length)))
-            ) %>% 
-  df_stats
+            )
+
+  kable(df_stats)
 ```
 
 Wow.. longest ride is _5 weeks_?! There's definitely some outliers here.  Probably someone who took out a bike and forgot to return it (o_o")
@@ -124,7 +126,8 @@ df_quantile <- df_clean %>%
             upper = q4+1.5*iqr,
             max = as.duration(round(max(ride_length)))
             )
-df_quantile
+
+kable(df_quantile)
 ```
 
 
@@ -133,4 +136,51 @@ df_quantile
 - Usage trends by month
 - Usage trends by time of day
 - Difference in ride distance
+
+```{r}
+df_filter <- df_clean %>%
+  subset(select = c(ride_id, rideable_type, started_at, ended_at, ride_length, member_casual)) %>% 
+  filter(as.duration(ride_length)<df_quantile$upper) %>% 
+  mutate(month = ym(format(as.Date(started_at), "%Y-%m")))
+```
+
+```{r}
+## Getting average amount of time different rider types ride after filtering outliers
+df_stats2 <- df_filter %>% 
+  group_by(member_casual) %>% 
+  summarise(mean = as.duration(round(mean(ride_length))), 
+            max = as.duration(round(max(ride_length))), 
+            min = as.duration(round(min(ride_length))),
+            sd = as.duration(round(sd(ride_length))),
+            median = as.duration(round(median(ride_length)))
+            )
+
+  kable(df_stats2)
+```
+
+
+
+```{r}
+df_filter %>% 
+  group_by(member_casual, month) %>% 
+  tally() %>% 
+  ggplot() +
+  geom_line(aes(x = month, y = n/1000, color = member_casual)) +
+  theme_minimal() +
+  scale_x_date(date_breaks = "1 month", date_labels = "%b") +
+  labs(x = "Month", y = "Number of riders (thousands)", color = "Rider Type")
+```
+
+
+```{r}
+df_filter %>%
+  group_by(member_casual, month) %>% 
+  summarise(average_ride = mean(as.numeric(as.duration(ride_length), "minutes"))) %>% 
+  ggplot() +
+  geom_line(aes(x = month, y = average_ride, color = member_casual)) +
+  theme_minimal() +
+  scale_x_date(date_breaks = "1 month", date_labels = "%b") +
+  scale_y_continuous(limits = c(0, 60)) +
+  labs(x = "Month", y = "Average Ride Length (minutes)", color = "Rider Type")
+```
 

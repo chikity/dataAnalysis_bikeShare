@@ -19,7 +19,7 @@ output: html_notebook
 
 Loading all the necessary packages
 
-```{r warning=TRUE, include=FALSE}
+```{r setup, warning=TRUE, include=FALSE}
 library(tidyverse)
 library(janitor)
 library(lubridate)

@@ -115,6 +115,8 @@ summary(cars)
 - Both casual and member riders follow the same riding trends throughout the year whereriders are __least active__ during winter months.
 - Although more rides used classic bikes, casual riders tend to __prefer electric bikes__ when compared to members
 
+## Comparing Ride Length between rider types
+
 ```{r}
 df_ride_weekday %>% 
   ggplot(aes(x = weekday, y = average/60, fill = member_casual)) +
@@ -128,22 +130,22 @@ df_ride_weekday %>%
        caption = "Data collected between June 2021 to May 2022")
 ```
 
-## Visuals
+## Riding Trends Throughout the Week
 
 ```{r}
 df_ride_weekday %>% 
   ggplot(aes(x = weekday, y = rides/1000, fill = member_casual)) +
   geom_col(position = "dodge") +
   theme_minimal() +
-  labs(title = "Comparison of Number of Rides Between Casual Riders and Members", 
-       subtitle = "Comparison by Week Day",
+  labs(title = "NNumber of Rides by Day of the Week", 
+       subtitle = "Comparison between the two rider types",
        y = "Number of Rides (thousands)", 
        x = NULL, 
        fill = "Rider Type",
        caption = "Data collected between June 2021 to May 2022")
 ```
 
-## More Visuals
+## Monthly Riding Trends Throughout the Year
 
 ```{r}
 df_filter %>% 

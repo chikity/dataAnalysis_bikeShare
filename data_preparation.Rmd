@@ -1,17 +1,18 @@
 ---
 title: "Answering the Question: In what ways do members and casual riders use Divvy bikes differently?"
 author: "Chi Kit Yeung"
-output: html_notebook
+# output: html_notebook
+output: html_document
 ---
-## Guiding questions
+<!-- ## Guiding questions -->
 
-- Where is your data located?
-- How is the data organized?
-- Are there issues with bias or credibility in this data? Does your data ROCCC?
-- How are you addressing licensing, privacy, security, and accessibility?
-- How did you verify the data’s integrity?
-- How does it help you answer your question?
-- Are there any problems with the data?
+<!-- - Where is your data located? -->
+<!-- - How is the data organized? -->
+<!-- - Are there issues with bias or credibility in this data? Does your data ROCCC? -->
+<!-- - How are you addressing licensing, privacy, security, and accessibility? -->
+<!-- - How did you verify the data’s integrity? -->
+<!-- - How does it help you answer your question? -->
+<!-- - Are there any problems with the data? -->
 
 ---
 
@@ -19,7 +20,7 @@ output: html_notebook
 
 Loading all the necessary packages
 
-```{r setup, warning=TRUE, include=FALSE}
+```{r setup}
 library(tidyverse)
 library(janitor)
 library(lubridate)
@@ -80,9 +81,9 @@ df_clean <- df %>%
   mutate(started_at = ymd_hms(started_at)) %>% 
   mutate(ended_at = ymd_hms(ended_at)) %>% 
   mutate(start_lat = as.double(start_lat)) %>% 
-  mutate(start_lat = as.double(start_lng)) %>%
-  mutate(start_lat = as.double(end_lat)) %>%
-  mutate(start_lat = as.double(end_lng)) %>%
+  mutate(start_lng = as.double(start_lng)) %>%
+  mutate(end_lat = as.double(end_lat)) %>%
+  mutate(end_lng = as.double(end_lng)) %>%
   mutate(ride_length = as_hms(difftime(ended_at, started_at)), .after = ended_at) %>% 
   remove_empty(which = c("rows", "cols")) %>% 
   na.omit() %>% 
@@ -167,8 +168,6 @@ df_stats2 <- df_filter %>%
 ## Ridership by type and weekday
 
 ```{r}
-aggregate(all_trips_v2$ride_length ~ all_trips_v2$member_casual + all_trips_v2$day_of_week, FUN = mean)
-
 df_filter %>% 
   aggregate(ride_length ~ member_casual + weekday, FUN = mean) %>% 
   kable(col.names = c("Type", "Weekday", "Ride Length"))
